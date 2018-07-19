@@ -25,6 +25,7 @@ repositories {
 }
 
 dependencies {
+    // Please refer to the release section for the specific lib version
     implementation 'com.github.joshuadeguzman:typedkt:x.x.x'
 }
 ```
