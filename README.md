@@ -87,10 +87,10 @@ tkv_character.setEndAnimationListener { // default null
 ```xml
 <io.jmdg.typedkt.TypedKtView
     ...
-    app:animateOnLoad="true"
+    app:animateOnLoad="false"
     app:delay="150"
     app:isAnimatedByWord="false"
-    app:isLooped="true" />
+    app:isLooped="false"/>
 ```
 
 ##### Important: Validate callbacks
