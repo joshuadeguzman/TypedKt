@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.res.TypedArray
 import android.os.Handler
 import android.util.AttributeSet
+import android.util.Log
 import android.widget.TextView
 import io.jmdg.typedkt.config.TypeWriterMode
 
@@ -29,11 +30,21 @@ class TypedKtView(context: Context, attributeSet: AttributeSet) : TextView(conte
             0, 0)
 
     private var isTypedArrayRecycled: Boolean = false
+    private var isAnimatedOnLoad = false
 
     // Configuration validators if set programmatically
     private var isAnimatedByWordSet = false
     private var isDelaySet = false
     private var isLoopedSet = false
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        isAnimatedOnLoad = typedArray.getBoolean(R.styleable.TypedKtView_animateOnLoad, false)
+        Log.e("JDG", isAnimatedOnLoad.toString())
+        if (isAnimatedOnLoad) {
+            animateText()
+        }
+    }
 
     private val characterAdder = object : Runnable {
         override fun run() {

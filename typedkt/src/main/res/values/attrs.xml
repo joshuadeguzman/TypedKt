@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="TypedKtView">
+        <attr name="animateOnLoad" format="boolean"/>
         <attr name="delay" format="integer"/>
         <attr name="isLooped" format="boolean"/>
         <attr name="isAnimatedByWord" format="boolean"/>
