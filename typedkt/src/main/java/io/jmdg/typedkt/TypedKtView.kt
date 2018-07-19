@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.res.TypedArray
 import android.os.Handler
 import android.util.AttributeSet
-import android.util.Log
 import android.widget.TextView
 import io.jmdg.typedkt.config.TypeWriterMode
 
@@ -15,7 +14,9 @@ import io.jmdg.typedkt.config.TypeWriterMode
 
 class TypedKtView(context: Context, attributeSet: AttributeSet) : TextView(context, attributeSet) {
     private lateinit var mText: CharSequence
+    private var mTextCopy: CharSequence = ""
     private var mTextList: List<String> = emptyList()
+    private var mTextListCopy: List<String> = emptyList()
     private var mTextListDelimiter: String = "\\s+"
     private var currentIndex: Int = 0
     private var delay: Long = 150
@@ -31,6 +32,8 @@ class TypedKtView(context: Context, attributeSet: AttributeSet) : TextView(conte
 
     private var isTypedArrayRecycled: Boolean = false
     private var isAnimatedOnLoad = false
+    private var isSkipped = false
+    private var isStopped = false
 
     // Configuration validators if set programmatically
     private var isAnimatedByWordSet = false
@@ -40,7 +43,6 @@ class TypedKtView(context: Context, attributeSet: AttributeSet) : TextView(conte
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         isAnimatedOnLoad = typedArray.getBoolean(R.styleable.TypedKtView_animateOnLoad, false)
-        Log.e("JDG", isAnimatedOnLoad.toString())
         if (isAnimatedOnLoad) {
             animateText()
         }
@@ -48,27 +50,36 @@ class TypedKtView(context: Context, attributeSet: AttributeSet) : TextView(conte
 
     private val characterAdder = object : Runnable {
         override fun run() {
-            if (currentIndex <= mText.length) {
-                text = mText.subSequence(0, currentIndex++)
-                handler.postDelayed(this, delay)
-            } else {
-                validateLoop(::run)
+            when {
+                isSkipped || isStopped -> return
+                currentIndex <= mText.length -> {
+                    text = mText.subSequence(0, currentIndex++)
+                    handler.postDelayed(this, delay)
+                }
+                else -> validateLoop(::run)
             }
         }
     }
 
     private val wordAdder: Runnable = object : Runnable {
         override fun run() {
-            if (currentIndex <= mTextList.size) {
-                text = mTextList.subList(0, currentIndex).joinToString(" ")
-                currentIndex++
-                handler.postDelayed(this, delay)
-            } else {
-                validateLoop(::run)
+            when {
+                isSkipped || isStopped -> return
+                currentIndex <= mTextList.size -> {
+                    text = mTextList.subList(0, currentIndex).joinToString(" ")
+                    currentIndex++
+                    handler.postDelayed(this, delay)
+                }
+                else -> validateLoop(::run)
             }
         }
     }
 
+    /**
+     * Validates loop configuration
+     * Invokes end of animation
+     * @param run: callback method from the handler
+     */
     private fun validateLoop(run: () -> Unit) {
         if (isLooped) {
             currentIndex = 0
@@ -80,48 +91,86 @@ class TypedKtView(context: Context, attributeSet: AttributeSet) : TextView(conte
         }
     }
 
+    /**
+     * Configuration for setting the mode to character animate mode
+     */
     fun setAnimationByCharacter() {
         typeWriterMode = TypeWriterMode.CHARACTERS
     }
 
+    /**
+     * Configuration for changing the animation state to word and overriding default delimiter
+     * @param delimiter: default is set to space / (" ") pattern
+     */
     fun setAnimationByWord(delimiter: String = mTextListDelimiter) {
         this.isAnimatedByWordSet = true
         mTextListDelimiter = delimiter
         typeWriterMode = TypeWriterMode.WORDS
     }
 
+    /**
+     * Configuration for callback method
+     * @param endAnimationListener: callback called after animation ended
+     */
     fun setEndAnimationListener(endAnimationListener: (() -> Unit)? = null) {
         listener = endAnimationListener
     }
 
+    /**
+     * Configuration for delay value
+     * @param delay: default is 150 ms
+     */
     fun setDelay(delay: Long) {
         this.isDelaySet = true
         this.delay = delay
     }
 
+    /**
+     * Configuration for loop behavior
+     * @param isLooped: default is false
+     */
     fun setLooped(isLooped: Boolean) {
         this.isLoopedSet = true
         this.isLooped = isLooped
     }
 
+    /**
+     * Trigger for animating the view with respect to the default and set configurations
+     * @param charSequence: custom string passed on top of the view's text attribute
+     */
     fun animateText(charSequence: CharSequence = "") {
         try {
             if (!isAnimating) {
-                isAnimating = true
-
+                // Loads and validates resources from the attribute set
                 if (!isTypedArrayRecycled) {
                     validateConfigurations()
                 }
 
-                val mString = validateString(charSequence)
-                currentIndex = 0
+                // Validates current text in the view
+                val mString: CharSequence
+                when {
+                    isSkipped -> mString = validateString(mTextCopy)
+                    isStopped -> mString = validateString(mTextCopy)
+                    else -> {
+                        mString = validateString(charSequence)
+                        mTextCopy = validateString(text)
+                    }
+                }
 
+                // Set animation status
+                currentIndex = 0
+                isAnimating = true
+                isStopped = false
+                isSkipped = false
+
+                // Validates callback handlers for specific animation mode
                 if (typeWriterMode == TypeWriterMode.CHARACTERS) {
                     mText = mString
                     textHandler.removeCallbacks(characterAdder)
                     textHandler.postDelayed(characterAdder, delay)
                 } else {
                     mTextList = mString.split(Regex(mTextListDelimiter))
+                    mTextListCopy = mString.split(Regex(mTextListDelimiter))
                     textHandler.removeCallbacks(wordAdder)
                     textHandler.postDelayed(wordAdder, delay)
                 }
@@ -140,6 +189,9 @@ class TypedKtView(context: Context, attributeSet: AttributeSet) : TextView(conte
         }
     }
 
+    /**
+     * Validate rendered attributes vs programmatically set configurations
+     */
     private fun validateConfigurations() {
         // Check type mode
         val isAnimatedByWord = typedArray.getBoolean(R.styleable.TypedKtView_isAnimatedByWord, false)
@@ -160,6 +212,10 @@ class TypedKtView(context: Context, attributeSet: AttributeSet) : TextView(conte
         }
     }
 
+    /**
+     * @param charSequence: custom string passed on top of the view's text attribute
+     * @return charSequence evaluated
+     */
     private fun validateString(charSequence: CharSequence): CharSequence {
         if (!charSequence.trim().isEmpty()) {
             return charSequence
@@ -167,6 +223,46 @@ class TypedKtView(context: Context, attributeSet: AttributeSet) : TextView(conte
         return text
     }
 
+    /**
+     * Checks view's animation status
+     * @return boolean whether the view is animating
+     */
+    fun isAnimating(): Boolean {
+        return isAnimating
+    }
+
+    /**
+     * Skips animation and resets view
+     */
+    fun skipAnimation() {
+        if (!isStopped) {
+            isAnimating = false
+            isSkipped = true
+            isStopped = false
+            mTextList = mTextListCopy
+            mText = mTextCopy
+            currentIndex = 0
+            text = mTextCopy
+        }
+    }
+
+    /**
+     * Stops the view from animating
+     */
+    fun stopAnimation() {
+        if (!isSkipped) {
+            isAnimating = false
+            isStopped = true
+            isSkipped = false
+            mTextList = mTextListCopy
+            mText = mTextCopy
+            currentIndex = 0
+        }
+    }
+
+    /**
+     * Removes animation callbacks from the view
+     */
     fun removeAnimation() {
         isAnimating = false
         if (typeWriterMode == TypeWriterMode.CHARACTERS) {
@@ -174,9 +270,5 @@ class TypedKtView(context: Context, attributeSet: AttributeSet) : TextView(conte
         } else {
             textHandler.removeCallbacks(wordAdder)
         }
-    }
-
-    fun isAnimating(): Boolean {
-        return isAnimating
     }
 }
