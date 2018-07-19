@@ -23,7 +23,7 @@
         app:animateOnLoad="true"
         app:delay="150"
         app:isAnimatedByWord="false"
-        app:isLooped="false" />
+        app:isLooped="true" />
 
     <TextView
         android:layout_width="wrap_content"
