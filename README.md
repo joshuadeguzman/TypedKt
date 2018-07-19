@@ -1,13 +1,18 @@
 # TypedKt
 Animated TextView effects for Android
 
-### Initial Release 
+### Features
+* Modular TextEffects (on-going)
+* TypeWriterEffect
+* Customizable
+* Lightweight (Low Memory Usage)
+* Thread safe
+
+### Initial Release
 * Supports character and word animation
 * Option for custom delay
 * Option for custom string to best animated for a specific view
 * Option for callback after the animation
-
-### Additional configurations added
 * Supports loop configuration
 * Passing of custom delimiter using Regex pattern
 * Added removal of callbacks
@@ -65,7 +70,7 @@ override fun onCreate(savedInstanceState: Bundle?) {
 }
 ```
 
-### Custom configurations via code
+##### Custom configurations via code
 ```kotlin
 tkv_character.setLooped(true) // default false
 tkv_character.setDelay(100) // default 150
@@ -77,6 +82,7 @@ tkv_character.setEndAnimationListener { // default null
 }
 ```
 
+##### Custom configurations via XML
 ```xml
 <io.jmdg.typedkt.TypedKtView
     ...
@@ -86,7 +92,7 @@ tkv_character.setEndAnimationListener { // default null
     app:isLooped="true" />
 ```
 
-###### Important: Remove callback
+##### Important: Validate callbacks
 ```kotlin
 override fun onResume() {
     super.onResume()
