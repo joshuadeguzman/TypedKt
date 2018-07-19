@@ -14,6 +14,7 @@ import io.jmdg.typedkt.config.TypeWriterMode
 class TypedKtView(context: Context?, attrs: AttributeSet?) : TextView(context, attrs) {
     private lateinit var mText: CharSequence
     private var mTextList: List<String> = emptyList()
+    private var mTextListDelimiter: Regex = Regex("\\s+")
     private var currentIndex: Int = 0
     private var delay: Long = 150
     private val textHandler = Handler()
@@ -31,7 +32,7 @@ class TypedKtView(context: Context?, attrs: AttributeSet?) : TextView(context, a
                     currentIndex = 0
                     text = ""
                     run()
-                }else{
+                } else {
                     listener?.invoke()
                 }
             }
@@ -49,18 +50,19 @@ class TypedKtView(context: Context?, attrs: AttributeSet?) : TextView(context, a
                     currentIndex = 0
                     text = ""
                     run()
-                }else{
+                } else {
                     listener?.invoke()
                 }
             }
         }
     }
 
-    fun setAnimationByCharacter(boolean: Boolean) {
+    fun setAnimationByCharacter() {
         typeWriterMode = TypeWriterMode.CHARACTERS
     }
 
-    fun setAnimationByWord(boolean: Boolean) {
+    fun setAnimationByWord(regex: Regex = mTextListDelimiter) {
+        mTextListDelimiter = regex
         typeWriterMode = TypeWriterMode.WORDS
     }
 
@@ -85,7 +87,7 @@ class TypedKtView(context: Context?, attrs: AttributeSet?) : TextView(context, a
             textHandler.removeCallbacks(characterAdder)
             textHandler.postDelayed(characterAdder, delay)
         } else {
-            mTextList = mString.split(Regex("\\s+"))
+            mTextList = mString.split(mTextListDelimiter)
             textHandler.removeCallbacks(wordAdder)
             textHandler.postDelayed(wordAdder, delay)
         }

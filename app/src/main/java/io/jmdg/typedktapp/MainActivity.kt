@@ -18,7 +18,7 @@ class MainActivity : AppCompatActivity() {
             tkv_character.animateText()
 
             // Animate by word
-            tkv_words.setAnimationByWord(true)
+            tkv_words.setAnimationByWord()
             tkv_words.setLooped(true)
 
             // Setup options before calling this method for it to take effect
