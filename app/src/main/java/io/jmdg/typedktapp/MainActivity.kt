@@ -11,6 +11,9 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         bt_animate.setOnClickListener {
+            // Animate view with XML configuration
+            tkv_animate_xml.animateText()
+
             // Animate by characters
             tkv_character.setLooped(true)
 
