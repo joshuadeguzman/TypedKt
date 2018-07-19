@@ -147,15 +147,8 @@ class TypedKtView(context: Context, attributeSet: AttributeSet) : TextView(conte
                 }
 
                 // Validates current text in the view
-                val mString: CharSequence
-                when {
-                    isSkipped -> mString = validateString(mTextCopy)
-                    isStopped -> mString = validateString(mTextCopy)
-                    else -> {
-                        mString = validateString(charSequence)
-                        mTextCopy = validateString(text)
-                    }
-                }
+                val mString: CharSequence = validateString(charSequence)
+                mTextCopy = mString
 
                 // Set animation status
                 currentIndex = 0
@@ -219,6 +212,8 @@ class TypedKtView(context: Context, attributeSet: AttributeSet) : TextView(conte
     private fun validateString(charSequence: CharSequence): CharSequence {
         if (!charSequence.trim().isEmpty()) {
             return charSequence
+        } else if (isStopped || isSkipped) {
+            return mTextCopy
         }
         return text
     }
@@ -242,7 +237,6 @@ class TypedKtView(context: Context, attributeSet: AttributeSet) : TextView(conte
             mTextList = mTextListCopy
             mText = mTextCopy
             currentIndex = 0
-            text = mTextCopy
         }
     }
 
@@ -257,6 +251,7 @@ class TypedKtView(context: Context, attributeSet: AttributeSet) : TextView(conte
             mTextList = mTextListCopy
             mText = mTextCopy
             currentIndex = 0
+            text = mTextCopy
         }
     }
 
