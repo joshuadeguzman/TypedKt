@@ -51,7 +51,7 @@ override fun onCreate(savedInstanceState: Bundle?) {
         // Animate by word
         tkv_words.setAnimationByWord()
         tkv_words.setEndAnimationListener {
-            Log.e("JDG", "END WORD")
+            callSomeMethod()
         }
         tkv_words.setLooped(true)
 
