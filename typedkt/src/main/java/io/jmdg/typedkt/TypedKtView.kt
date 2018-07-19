@@ -70,7 +70,7 @@ class TypedKtView(context: Context?, attrs: AttributeSet?) : TextView(context, a
         listener = endAnimationListener
     }
 
-    fun setCharacterDelay(delay: Long) {
+    fun setDelay(delay: Long) {
         this.delay = delay
     }
 
