@@ -43,9 +43,18 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onPause() {
+        super.onPause()
+        // Remove callbacks
+        tkv_animate_xml.removeAnimation()
+        tkv_character.removeAnimation()
+        tkv_words.removeAnimation()
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         // Remove callbacks
+        tkv_animate_xml.removeAnimation()
         tkv_character.removeAnimation()
         tkv_words.removeAnimation()
     }
