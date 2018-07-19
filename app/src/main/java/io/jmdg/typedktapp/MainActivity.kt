@@ -11,8 +11,25 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         bt_animate.setOnClickListener {
+            // Animate by characters
+            tkv_character.setLooped(true)
+
+            // Setup options before calling this method for it to take effect
             tkv_character.animateText()
-            tkv_words.animateWords()
+
+            // Animate by word
+            tkv_words.setAnimationByWord(true)
+            tkv_words.setLooped(true)
+
+            // Setup options before calling this method for it to take effect
+            tkv_words.animateText()
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        // Remove callbacks
+        tkv_character.removeAnimation()
+        tkv_words.removeAnimation()
     }
 }

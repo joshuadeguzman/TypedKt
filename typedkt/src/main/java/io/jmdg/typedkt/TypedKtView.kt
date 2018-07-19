@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Handler
 import android.util.AttributeSet
 import android.widget.TextView
+import io.jmdg.typedkt.config.TypeWriterMode
 
 
 /**
@@ -17,12 +18,22 @@ class TypedKtView(context: Context?, attrs: AttributeSet?) : TextView(context, a
     private var delay: Long = 150
     private val textHandler = Handler()
     private var listener: (() -> Unit)? = null
+    private var isLooped: Boolean = false
+    private var typeWriterMode = TypeWriterMode.CHARACTERS
 
     private val characterAdder = object : Runnable {
         override fun run() {
-            text = mText.subSequence(0, currentIndex++)
             if (currentIndex <= mText.length) {
+                text = mText.subSequence(0, currentIndex++)
                 handler.postDelayed(this, delay)
+            } else {
+                if (isLooped) {
+                    currentIndex = 0
+                    text = ""
+                    run()
+                }else{
+                    listener?.invoke()
+                }
             }
         }
     }
@@ -34,51 +45,64 @@ class TypedKtView(context: Context?, attrs: AttributeSet?) : TextView(context, a
                 currentIndex++
                 handler.postDelayed(this, delay)
             } else {
-                listener?.invoke()
+                if (isLooped) {
+                    currentIndex = 0
+                    text = ""
+                    run()
+                }else{
+                    listener?.invoke()
+                }
             }
         }
     }
 
-    fun setCharacterDelay(m: Long) {
-        delay = m
+    fun setAnimationByCharacter(boolean: Boolean) {
+        typeWriterMode = TypeWriterMode.CHARACTERS
     }
 
-    fun animateText() {
-        renderAnimation(true, text, null)
+    fun setAnimationByWord(boolean: Boolean) {
+        typeWriterMode = TypeWriterMode.WORDS
     }
 
-    fun animateText(endAnimationListener: (() -> Unit)? = null) {
-        renderAnimation(true, text, endAnimationListener)
-    }
-
-    fun animateText(charSequence: CharSequence, endAnimationListener: (() -> Unit)? = null) {
-        renderAnimation(true, charSequence, endAnimationListener)
-    }
-
-    fun animateWords() {
-        renderAnimation(false, text, null)
-    }
-
-    fun animateWords(endAnimationListener: (() -> Unit)? = null) {
-        renderAnimation(false, text, endAnimationListener)
-    }
-
-    fun animateWords(charSequence: CharSequence, endAnimationListener: (() -> Unit)? = null) {
-        renderAnimation(false, charSequence, endAnimationListener)
-    }
-
-    private fun renderAnimation(isAnimatedByCharacter: Boolean, charSequence: CharSequence, endAnimationListener: (() -> Unit)? = null) {
-        currentIndex = 0
+    fun setEndAnimationListener(endAnimationListener: (() -> Unit)? = null) {
         listener = endAnimationListener
+    }
 
-        if (isAnimatedByCharacter) {
-            mText = text
+    fun setCharacterDelay(delay: Long) {
+        this.delay = delay
+    }
+
+    fun setLooped(isLooped: Boolean) {
+        this.isLooped = isLooped
+    }
+
+    fun animateText(charSequence: CharSequence = "") {
+        val mString = validateString(charSequence)
+        currentIndex = 0
+
+        if (typeWriterMode == TypeWriterMode.CHARACTERS) {
+            mText = mString
             textHandler.removeCallbacks(characterAdder)
             textHandler.postDelayed(characterAdder, delay)
         } else {
-            mTextList = charSequence.split(Regex("\\s+"))
+            mTextList = mString.split(Regex("\\s+"))
             textHandler.removeCallbacks(wordAdder)
             textHandler.postDelayed(wordAdder, delay)
+        }
+    }
+
+    private fun validateString(charSequence: CharSequence): CharSequence {
+        if (!charSequence.trim().isEmpty()) {
+            return charSequence
+        }
+        return text
+    }
+
+    fun removeAnimation() {
+        if (typeWriterMode == TypeWriterMode.CHARACTERS) {
+            textHandler.removeCallbacks(characterAdder)
+        } else {
+            textHandler.removeCallbacks(wordAdder)
         }
     }
 }
