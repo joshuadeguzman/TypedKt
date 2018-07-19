@@ -23,14 +23,20 @@ dependencies {
 
 ### Usage
 ```kotlin
- override fun onCreate(savedInstanceState: Bundle?) {
+override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_main)
 
     bt_animate.setOnClickListener {
         // Animate by characters
         tkv_character.setLooped(true)
+        tkv_character.animateText()
 
+        // Animate by word
+        tkv_words.setAnimationByWord()
+        tkv_words.setLooped(true)
+        tkv_words.animateText()
+        
         // Custom configurations
         tkv_character.setLooped(true) // default false
         tkv_character.setDelay(100) // default 150
@@ -41,15 +47,8 @@ dependencies {
             callSomeMethod()
         }
         
-        // Setup options before calling this method for it to take effect
+        // Setup configuration before calling animate method for it to take effect
         tkv_character.animateText()
-
-        // Animate by word
-        tkv_words.setAnimationByWord()
-        tkv_words.setLooped(true)
-
-        // Setup options before calling this method for it to take effect
-        tkv_words.animateText()
     }
 }
 ```
