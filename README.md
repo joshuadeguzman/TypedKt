@@ -42,7 +42,7 @@ override fun onCreate(savedInstanceState: Bundle?) {
         tkv_character.setDelay(100) // default 150
         tkv_character.setAnimationByCharacter() // default animation
         tkv_character.setAnimationByWord() // default by character
-        tkv_character.setAnimationByWord(Regex("regex pattern")) // default delimiter is Regex("\\s+")
+        tkv_character.setAnimationByWord("regex pattern") // default delimiter is "\\s+" which denotes space
         tkv_character.setEndAnimationListener { // default null
             callSomeMethod()
         }
