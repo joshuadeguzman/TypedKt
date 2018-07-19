@@ -7,6 +7,11 @@ Animated TextView effects for Android
 * Option for custom string to best animated for a specific view
 * Option for callback after the animation
 
+### Additional configurations added
+* Supports loop configuration
+* Passing of custom delimiter using Regex pattern
+* Added removal of callbacks
+* Optimized method invocations
 
 ### Installation
 ```gradle
