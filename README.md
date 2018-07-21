@@ -25,8 +25,8 @@ repositories {
 }
 
 dependencies {
-    // Please refer to the release section for the specific lib version
-    implementation 'com.github.joshuadeguzman:typedkt:x.x.x'
+    // Replace version with release version, e.g. 1.0.0-alpha, -SNAPSHOT
+    implementation 'io.jmdg:typedkt:[VERSION]'
 }
 ```
 
